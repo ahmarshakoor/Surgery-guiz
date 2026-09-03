@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NRE & NUMS Surgery 100 MCQs Practice Quiz</title>
-    <script src="https://cdn.tailwindcss.com">
-    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .option-btn {
             transition: all 0.2s ease-in-out;
@@ -39,7 +38,12 @@
                     <p class="text-xs text-slate-300">100 MCQs • 50 NRE Past Papers + 50 NUMS Past Papers</p>
                 </div>
             </div>
-            <div class="flex items-center space-x-4 mt-2 sm:mt-0">
+            <div class="flex items-center space-x-3 mt-2 sm:mt-0">
+                <!-- Auto-Save Indicator -->
+                <div id="save-status" class="bg-slate-800 border border-slate-700 text-xs px-2.5 py-1 rounded-md text-emerald-400 flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span id="save-status-text">Auto-Save Enabled</span>
+                </div>
                 <div class="bg-slate-800 px-3 py-1.5 rounded-lg text-sm text-center">
                     <span class="text-xs text-slate-400 block">Score</span>
                     <span id="score-counter" class="font-bold text-green-400">0 / 0</span>
@@ -66,8 +70,11 @@
                 </select>
             </div>
 
-            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 max-h-[500px] flex flex-col">
-                <h2 class="font-bold text-slate-700 mb-2 text-sm uppercase tracking-wide">Question Navigator</h2>
+            <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 max-h-[480px] flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="font-bold text-slate-700 text-sm uppercase tracking-wide">Question Navigator</h2>
+                    <button id="reset-quiz-btn" class="text-xs text-red-600 hover:text-red-800 font-semibold underline">Reset All</button>
+                </div>
                 <div id="question-grid" class="grid grid-cols-5 gap-1.5 overflow-y-auto p-1 flex-grow">
                     <!-- Dynamic Navigator Buttons -->
                 </div>
@@ -124,842 +131,339 @@
     </main>
 
     <script>
-        // 100 Surgery Questions: 50 NRE Past Papers + 50 NUMS Past Papers
+        // --- 100 SURGERY QUESTIONS DATA ---
         const surgeryQuestionsRaw = [
             // --- 50 NRE MADE EASY SURGERY PAST PAPERS ---
-            {
-                source: "NRE Made Easy",
-                q: "What is an indication for immediate cholecystectomy in acute gallbladder disease?",
-                options: ["Obstructive jaundice", "Pigment stones", "Mucocele of gallbladder", "Emphysematous cholecystitis"],
-                correct: 3,
-                exp: "Emphysematous cholecystitis is a life-threatening form of acute cholecystitis caused by gas-forming organisms (e.g., Clostridium perfringens). It carries a high risk of gangrene and perforation, requiring immediate emergency surgical intervention."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the most common cause of painless lower gastrointestinal bleeding (painless hematochezia) in a young child?",
-                options: ["Perianal Fistula", "Perianal Abscess", "Hemorrhoids", "Meckel's Diverticulum"],
-                correct: 3,
-                exp: "Meckel's diverticulum is a vestigial remnant of the vitelline duct. It frequently contains ectopic gastric mucosa, which secretes acid and causes ulceration of adjacent ileal mucosa, resulting in painless massive rectal bleeding in children."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 30-year-old male involved in a road traffic accident presents with hypotension, tracheal deviation to the left, and absent breath sounds on the right. What is the immediate life-saving intervention?",
-                options: ["Endotracheal intubation", "Needle decompression in the 2nd/5th intercostal space", "Chest X-ray", "Pericardiocentesis"],
-                correct: 1,
-                exp: "Tension pneumothorax is a clinical emergency requiring immediate needle decompression prior to diagnostic imaging (such as chest X-ray) to relieve mediastinal shift and restore venous return."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which parameter is the single best indicator of adequate fluid resuscitation in an adult burn patient undergoing Parkland protocol?",
-                options: ["Heart rate < 100 bpm", "Mean arterial pressure > 65 mmHg", "Urine output of 0.5–1.0 mL/kg/hr", "Normal capillary refill"],
-                correct: 2,
-                exp: "Target hourly urine output (0.5 to 1.0 mL/kg/hr in adults) is the most reliable clinical indicator of adequate end-organ renal perfusion during burn fluid resuscitation."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A patient with a history of long-standing varicose veins presents with skin hyperpigmentation and an ulcer over the medial malleolus. What is the primary underlying cause?",
-                options: ["Arterial insufficiency", "Venous hypertension and valvular incompetence", "Neuropathic pressure necrosis", "Infective vasculitis"],
-                correct: 1,
-                exp: "Venous stasis ulcers over the gaiter region (medial malleolus) are caused by chronic venous hypertension secondary to deep or superficial valvular incompetence."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which clinical feature distinguishes a direct inguinal hernia from an indirect inguinal hernia?",
-                options: ["Direct hernia passes through the deep inguinal ring", "Indirect hernia lies medial to the inferior epigastric vessels", "Direct hernia lies medial to the inferior epigastric vessels", "Direct hernia descends into the scrotum regularly"],
-                correct: 2,
-                exp: "Direct inguinal hernias protrude directly through Hesselbach's triangle, which is situated medial to the inferior epigastric vessels. Indirect hernias enter via the deep ring, lateral to these vessels."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the surgical treatment of choice for a patient diagnosed with a localized, operable adenocarcinoma of the head of the pancreas?",
-                options: ["Distal pancreatectomy", "Total pancreatectomy", "Whipple procedure (Pancreaticoduodenectomy)", "Gastrojejunostomy alone"],
-                correct: 2,
-                exp: "Pancreaticoduodenectomy (Whipple procedure) is the definitive surgical procedure for resectable pancreatic head tumors, ampullary carcinomas, and distal bile duct cancers."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 25-year-old male presents with sudden severe right scrotal pain. The right testis is elevated and exquisitely tender. Prehn's sign is negative. What is the definitive management?",
-                options: ["Empiric oral antibiotics", "Scrotal ultrasound and discharge", "Immediate surgical exploration and bilateral orchidopexy", "Manual detorsion only"],
-                correct: 2,
-                exp: "Testicular torsion is a surgical emergency. Immediate bilateral surgical orchidopexy is required within 6 hours to prevent ischemic necrosis and infarction of the testis."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which type of thyroid carcinoma is associated with Amyloid stroma and elevated calcitonin levels?",
-                options: ["Papillary thyroid carcinoma", "Follicular thyroid carcinoma", "Medullary thyroid carcinoma", "Anaplastic thyroid carcinoma"],
-                correct: 2,
-                exp: "Medullary thyroid carcinoma arises from parafollicular C-cells and secretes calcitonin. Histopathology demonstrates extracellular amyloid deposits derived from calcitonin."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A newborn infant presents with bilious vomiting and scaphoid abdomen on the first day of life. Abdominal X-ray displays a 'double bubble' sign. What is the diagnosis?",
-                options: ["Hypertrophic pyloric stenosis", "Duodenal atresia", "Intussusception", "Hirschsprung's disease"],
-                correct: 1,
-                exp: "The double-bubble sign on abdominal radiograph represents air in the stomach and dilated proximal duodenum, which is pathognomonic for congenital duodenal atresia."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 40-year-old male presents with massive hematemesis. Upper endoscopy confirms bleeding esophageal varices. What is the first-line pharmacotherapy prior to endoscopy?",
-                options: ["Omeprazole IV", "Terlipressin or Octreotide IV", "Tranexamic acid", "Propranolol"],
-                correct: 1,
-                exp: "Vasoactive drugs like Terlipressin or Octreotide reduce splanchnic blood flow and portal venous pressure, serving as first-line therapy for acute variceal bleeding."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the definitive procedure to manage a symptomatic epidural hematoma displaying a biconvex/lenticular appearance on CT scan?",
-                options: ["Lumbar puncture", "Emergency craniotomy and evacuation", "Observation with mannitol", "Ventrikulostomy alone"],
-                correct: 1,
-                exp: "Epidural hematomas (typically middle meningeal artery rupture) show rapid arterial expansion. Emergency surgical craniotomy and clot evacuation are life-saving."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which complication is most specific to total thyroidectomy due to injury of the parathyroid glands?",
-                options: ["Hypercalcemia", "Hypocalcemia and tetany", "Hoarseness", "Dysphagia"],
-                correct: 1,
-                exp: "Inadvertent surgical removal or ischemia of the parathyroid glands during total thyroidectomy leads to hypocalcemia, manifesting as Chvostek/Trousseau signs and tetany."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A patient presents with severe perianal pain that worsens with bowel movements. Examination reveals a small tear in the posterior midline of the anal canal. What is the initial medical treatment?",
-                options: ["Lateral internal sphincterotomy", "Fistulotomy", "High-fiber diet, stool softeners, and topical nitroglycerin/nifedipine", "Incised drainage"],
-                correct: 2,
-                exp: "First-line conservative management for chronic anal fissures includes fiber supplementation, warm sitz baths, and topical nitrates or calcium channel blockers to reduce sphincter tone."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "In trauma care, what does the 'Triad of Death' in a bleeding surgical patient comprise?",
-                options: ["Hypotension, Bradycardia, Hypothermia", "Hypothermia, Coagulopathy, Acidosis", "Hyperkalemia, Acidosis, Hypothermia", "Hypoxia, Hypercapnia, Acidosis"],
-                correct: 1,
-                exp: "The lethal trauma triad consists of Hypothermia, Acidosis, and Coagulopathy. Recognizing this requires damage control surgery rather than prolonged definitive repair."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which stone is radio-lucent on plain abdominal radiographs (KUB)?",
-                options: ["Calcium oxalate", "Calcium phosphate", "Uric acid", "Struvite"],
-                correct: 2,
-                exp: "Uric acid stones are radiolucent and cannot be visualized on plain X-rays (KUB); non-contrast CT abdomen/pelvis is required for identification."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 60-year-old male smoker presents with painless gross hematuria. What is the most likely diagnosis?",
-                options: ["Renal cell carcinoma", "Transition cell / Urothelial carcinoma of the bladder", "Acute cystitis", "Benign prostatic hyperplasia"],
-                correct: 1,
-                exp: "Painless gross hematuria in an older adult, especially a smoker, is considered urothelial (bladder) carcinoma until proven otherwise."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which subtype of breast carcinoma classically presents with eczema-like skin changes around the nipple-areolar complex?",
-                options: ["Invasive ductal carcinoma", "Invasive lobular carcinoma", "Paget's disease of the breast", "Phyllodes tumor"],
-                correct: 2,
-                exp: "Paget's disease of the breast manifests as a chronic, scaly, erythematous nipple rash caused by malignant intraepithelial adenocarcinoma cells invading the epidermis."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which fluid is preferred for initial crystalloid resuscitation in a hypovolemic surgical trauma patient?",
-                options: ["0.45% Normal Saline", "5% Dextrose Water", "Ringer's Lactate (or Plasmalyte)", "Hypertonic Saline 3%"],
-                correct: 2,
-                exp: "Balanced crystalloids like Ringer's Lactate or Plasmalyte are preferred for acute volume expansion as large volumes of 0.9% saline risk hyperchloremic metabolic acidosis."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the primary vascular supply to a split-thickness skin graft during the first 48 hours after application?",
-                options: ["Neovascularization", "Inosculation", "Plasmatic imbibition", "Inosculatory angiogenesis"],
-                correct: 2,
-                exp: "During the first 24–48 hours, skin grafts survive solely via plasmatic imbibition (passive absorption of nutrients and fluid from the host bed)."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the most sensitive initial imaging modality for suspected acute cholecystitis?",
-                options: ["Plain abdominal X-ray", "Abdominal Ultrasound", "CT scan abdomen", "MRCP"],
-                correct: 1,
-                exp: "Ultrasonography of the right upper quadrant is the initial diagnostic test of choice for acute cholecystitis (sensitivity >95%)."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A patient develops hoarseness immediately following a total thyroidectomy. Examination reveals unilateral vocal cord paralysis. Which nerve was injured?",
-                options: ["Superior laryngeal nerve (external branch)", "Superior laryngeal nerve (internal branch)", "Recurrent laryngeal nerve", "Glossopharyngeal nerve"],
-                correct: 2,
-                exp: "The recurrent laryngeal nerve innervates intrinsic laryngeal muscles except the cricothyroid. Unilateral intraoperative trauma causes vocal cord paralysis and hoarseness."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 22-year-old male sustains a fall on an outstretched hand and presents with anatomical snuffbox tenderness. Initial X-ray shows no fracture. What is the correct management?",
-                options: ["Discharge with simple analgesics", "Apply thumb spica cast and repeat X-ray in 10-14 days", "Immediate surgical fixation", "MRI wrist immediately"],
-                correct: 1,
-                exp: "Scaphoid fractures are prone to nonunion and avascular necrosis. If anatomical snuffbox tenderness is present despite normal initial radiographs, immobilize in a thumb spica cast and re-image in 2 weeks."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the gold-standard investigation for evaluating suspected mechanical bowel obstruction when clinical signs are inconclusive?",
-                options: ["Barium swallow", "Abdominal ultrasound", "CT Abdomen and Pelvis with contrast", "Colonoscopy"],
-                correct: 2,
-                exp: "Contrast-enhanced CT scan of the abdomen/pelvis is the most accurate diagnostic tool to confirm bowel obstruction, locate the transition zone, and detect strangulation."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A patient with ulcerative colitis develops acute toxic megacolon. What is the procedure of choice if emergency surgery is warranted?",
-                options: ["Proctocolectomy with ileal pouch-anal anastomosis", "Total abdominal colectomy with end ileostomy", "Segmental colectomy", "Loop ileostomy alone"],
-                correct: 1,
-                exp: "In emergency toxic megacolon, subtotal/total colectomy with end ileostomy removes the inflamed colon while leaving the rectum for safer second-stage reconstruction once stable."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the most common cause of early postoperative fever occurring within the first 24 to 48 hours after major abdominal surgery?",
-                options: ["Urinary tract infection", "Wound infection", "Atelectasis / Pulmonary complications", "Deep vein thrombosis"],
-                correct: 2,
-                exp: "Atelectasis (lung collapse) is the predominant cause of fever within the first 24–48 hours postoperatively ('Wind')."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which landmark marks the anatomical boundary between upper and lower gastrointestinal bleeding?",
-                options: ["Ileocecal valve", "Ligament of Treitz", "Pyloric sphincter", "Sphincter of Oddi"],
-                correct: 1,
-                exp: "The Ligament of Treitz (suspensory muscle of duodenum) defines the junction between the upper GI tract (duodenum) and lower GI tract (jejunum)."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "In a patient presenting with acute lower limb ischemia (cold, pale, pulseless leg), what is the definitive immediate intervention for embolic occlusion?",
-                options: ["Intravenous heparin infusion only", "Emergency Fogarty catheter embolectomy", "Fasciotomy alone", "Amputation"],
-                correct: 1,
-                exp: "Acute embolic limb ischemia requires prompt surgical embolectomy using a Fogarty balloon catheter to restore distal blood flow."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 55-year-old female presents with postmenopausal bleeding and endometrial thickness of 12 mm. Biopsy reveals adenocarcinoma. What is the primary surgical staging operation?",
-                options: ["Myomectomy", "Total hysterectomy with bilateral salpingo-oophorectomy and lymph node sampling", "Subtotal hysterectomy", "Oophorectomy alone"],
-                correct: 1,
-                exp: "Definitive surgical treatment and staging for endometrial cancer involves total abdominal/laparoscopic hysterectomy with bilateral salpingo-oophorectomy."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the characteristic feature of a marjolin ulcer?",
-                options: ["Basal cell carcinoma in sun-damaged skin", "Squamous cell carcinoma arising in chronic scars or burn wounds", "Melanoma under the nail bed", "Adenocarcinoma of sweat glands"],
-                correct: 1,
-                exp: "Marjolin ulcer refers to an aggressive Squamous Cell Carcinoma (SCC) arising in chronically inflamed skin, long-standing ulcers, or old burn scars."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which nerve is at risk of injury during surgical resection of the submandibular gland?",
-                options: ["Hypoglossal nerve", "Marginal mandibular branch of facial nerve", "Lingual nerve", "All of the above"],
-                correct: 3,
-                exp: "Surgical approach to the submandibular gland places the marginal mandibular branch of CN VII, the lingual nerve, and the hypoglossal nerve at anatomical risk."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which classification system is widely used to grade the severity and open nature of traumatic fractures?",
-                options: ["Garden Classification", "Gustilo-Anderson Classification", "Salter-Harris Classification", "Rockwood Classification"],
-                correct: 1,
-                exp: "The Gustilo-Anderson system categorizes open fractures (Types I to III) based on soft tissue injury, wound size, and contamination."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 3-year-old boy presents with abdominal pain, bloody 'currant jelly' stools, and a sausage-shaped mass in the right upper quadrant. What is the diagnosis?",
-                options: ["Acute appendicitis", "Intussusception", "Volvulus", "Meckel's diverticulitis"],
-                correct: 1,
-                exp: "Intussusception typically presents in young children with episodic colic, a palpable sausage-shaped mass, and 'currant jelly' mucous bloody stools."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which fluid non-surgical reduction technique is first-line for uncomplicated pediatric intussusception?",
-                options: ["Exploratory laparotomy", "Air or contrast hydrostatic enema under fluoroscopy/ultrasound", "Manual reduction", "Nasogastric suction"],
-                correct: 1,
-                exp: "Pneumatic (air) or hydrostatic (saline/contrast) enema under imaging guidance is successful in >80% of pediatric intussusception cases."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the surgical management of choice for symptomatic, obstructive Benign Prostatic Hyperplasia (BPH) refractory to medical therapy?",
-                options: ["Radical prostatectomy", "Transurethral resection of the prostate (TURP)", "Orchidectomy", "Radiation therapy"],
-                correct: 1,
-                exp: "TURP remains the standard gold-surgical intervention for symptomatic lower urinary tract symptoms secondary to BPH."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which suture material is classified as a synthetic monofilament non-absorbable suture commonly used for vascular anastomoses?",
-                options: ["Vicryl (Polyglactin)", "Prolene (Polypropylene)", "Chromic Catgut", "PDS (Polydioxanone)"],
-                correct: 1,
-                exp: "Polypropylene (Prolene) is a non-absorbable monofilament suture providing high tensile strength and minimal tissue reactivity, ideal for vascular procedures."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 45-year-old male presents with severe chest pain following violent vomiting. Contrast swallow demonstrates esophageal perforation into the mediastinum. What is this syndrome?",
-                options: ["Mallory-Weiss syndrome", "Boerhaave syndrome", "Plummer-Vinson syndrome", "Zollinger-Ellison syndrome"],
-                correct: 1,
-                exp: "Boerhaave syndrome is transmural esophageal rupture secondary to severe retching or vomiting, leading to pneumomediastinum and mediastinitis."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the most common histological type of esophageal cancer worldwide?",
-                options: ["Adenocarcinoma", "Squamous cell carcinoma", "Small cell carcinoma", "Leiomyosarcoma"],
-                correct: 1,
-                exp: "Squamous cell carcinoma is the most common subtype worldwide (linked to alcohol and tobacco), although adenocarcinoma is rising in Western countries due to Barrett's esophagus."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "In a patient suspected of having pheochromocytoma, what initial diagnostic test should be performed?",
-                options: ["Renal artery angiography", "Plasma or 24-hour urinary fractionated metanephrines", "CT scan of abdomen", "Serum aldosterone"],
-                correct: 1,
-                exp: "Measurement of free plasma metanephrines or 24-hour urinary metanephrines is the first-line screening test for pheochromocytoma due to high sensitivity."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which medication must be administered before initiating beta-blocker therapy in a patient with pheochromocytoma?",
-                options: ["Alpha-blocker (e.g., Phenoxybenzamine)", "ACE inhibitor", "Calcium channel blocker", "Loop diuretic"],
-                correct: 0,
-                exp: "Alpha-blockade (phenoxybenzamine) must always precede beta-blocker therapy to prevent unopposed alpha-receptor stimulation leading to hypertensive crisis."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the most frequent site of distant metastasis for colorectal cancer?",
-                options: ["Lungs", "Bone", "Liver", "Brain"],
-                correct: 2,
-                exp: "The liver is the primary site of hematogenous metastasis for colorectal cancer via portal circulation drainage."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A 35-year-old trauma victim arrives with paradoxical inward movement of a chest wall segment during inspiration. What is the diagnosis?",
-                options: ["Simple pneumothorax", "Flail chest", "Tension pneumothorax", "Diaphragmatic rupture"],
-                correct: 1,
-                exp: "Flail chest occurs when 3 or more contiguous ribs are fractured in 2 or more places, creating an unstable chest segment displaying paradoxical motion."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the surgical treatment for hypertrophic pyloric stenosis in infants?",
-                options: ["Nissen fundoplication", "Ramstedt pyloromyotomy", "Billroth I gastrectomy", "Roux-en-Y bypass"],
-                correct: 1,
-                exp: "Ramstedt pyloromyotomy (incising the hypertrophied pyloric muscle down to the mucosa) is the definitive surgical treatment."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which structure is incised during a carpal tunnel release surgery to relieve median nerve compression?",
-                options: ["Flexor retinaculum (Transverse carpal ligament)", "Extensor retinaculum", "Palmar aponeurosis", "Radial collateral ligament"],
-                correct: 0,
-                exp: "Surgical decompression of carpal tunnel syndrome involves division of the transverse carpal ligament (flexor retinaculum)."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A patient presents with a solitary, firm, painless thyroid nodule. Fine Needle Aspiration Cytology (FNAC) shows Orphan Annie eyes nuclei and psammoma bodies. What is the diagnosis?",
-                options: ["Follicular carcinoma", "Papillary thyroid carcinoma", "Medullary carcinoma", "Anaplastic carcinoma"],
-                correct: 1,
-                exp: "Optically clear 'Orphan Annie' nuclei, nuclear grooves, and laminated calcified psammoma bodies are pathognomonic for Papillary Thyroid Carcinoma."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the first step in the resuscitation of an unconscious trauma patient according to ATLS guidelines?",
-                options: ["Establish IV access", "Airway maintenance with cervical spine protection", "Assessment of disability (GCS)", "Chest tube insertion"],
-                correct: 1,
-                exp: "The primary survey begins with A: Airway maintenance with restriction of cervical spine motion."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "A patient with long-standing Crohn's disease presents with enterocutaneous fistula. What is the initial medical management principle?",
-                options: ["Immediate emergency resection", "Bowel rest, nutritional support (TPN), skin protection, and fluid correction", "High-dose oral steroids only", "Radiation therapy"],
-                correct: 1,
-                exp: "Initial management of enterocutaneous fistulas is non-operative: bowel rest, correction of fluid/electrolytes, total parenteral nutrition, and skin care."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "What is the primary diagnostic modality for a patient suspected of having acute pulmonary embolism with normal renal function?",
-                options: ["Chest X-ray", "CT Pulmonary Angiography (CTPA)", "D-Dimer", "Venous Doppler ultrasound"],
-                correct: 1,
-                exp: "CTPA is the definitive imaging standard of choice to diagnose acute pulmonary embolism."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which clinical triad indicates Cardiac Tamponade (Beck's Triad)?",
-                options: ["Hypotension, Muffled heart sounds, Jugular venous distension", "Hypertension, Bradycardia, Irregular breathing", "Fever, Jaundice, RUQ pain", "Pain, Pallor, Pulselessness"],
-                correct: 0,
-                exp: "Beck's triad for acute cardiac tamponade consists of hypotension, muffled/distant heart sounds, and elevated jugular venous pressure (JVD)."
-            },
-            {
-                source: "NRE Made Easy",
-                q: "Which surgical option is indicated for a patient with symptomatic gallstone ileus?",
-                options: ["Laparoscopic cholecystectomy alone", "Enterotomy, stone extraction, and closure", "Whipple procedure", "Total colectomy"],
-                correct: 1,
-                exp: "Gallstone ileus management involves enterotomy proximal to the site of obstruction, extraction of the impacted gallstone, and primary closure."
-            },
+            { source: "NRE Made Easy", q: "What is an indication for immediate cholecystectomy in acute gallbladder disease?", options: ["Obstructive jaundice", "Pigment stones", "Mucocele of gallbladder", "Emphysematous cholecystitis"], correct: 3, exp: "Emphysematous cholecystitis is a life-threatening form of acute cholecystitis caused by gas-forming organisms (e.g., Clostridium perfringens). It carries a high risk of gangrene and perforation, requiring immediate emergency surgical intervention." },
+            { source: "NRE Made Easy", q: "What is the most common cause of painless lower gastrointestinal bleeding (painless hematochezia) in a young child?", options: ["Perianal Fistula", "Perianal Abscess", "Hemorrhoids", "Meckel's Diverticulum"], correct: 3, exp: "Meckel's diverticulum is a vestigial remnant of the vitelline duct. It frequently contains ectopic gastric mucosa, which secretes acid and causes ulceration of adjacent ileal mucosa, resulting in painless massive rectal bleeding in children." },
+            { source: "NRE Made Easy", q: "A 30-year-old male involved in a road traffic accident presents with hypotension, tracheal deviation to the left, and absent breath sounds on the right. What is the immediate life-saving intervention?", options: ["Endotracheal intubation", "Needle decompression in the 2nd/5th intercostal space", "Chest X-ray", "Pericardiocentesis"], correct: 1, exp: "Tension pneumothorax is a clinical emergency requiring immediate needle decompression prior to diagnostic imaging (such as chest X-ray) to relieve mediastinal shift and restore venous return." },
+            { source: "NRE Made Easy", q: "Which parameter is the single best indicator of adequate fluid resuscitation in an adult burn patient undergoing Parkland protocol?", options: ["Heart rate < 100 bpm", "Mean arterial pressure > 65 mmHg", "Urine output of 0.5–1.0 mL/kg/hr", "Normal capillary refill"], correct: 2, exp: "Target hourly urine output (0.5 to 1.0 mL/kg/hr in adults) is the most reliable clinical indicator of adequate end-organ renal perfusion during burn fluid resuscitation." },
+            { source: "NRE Made Easy", q: "A patient with a history of long-standing varicose veins presents with skin hyperpigmentation and an ulcer over the medial malleolus. What is the primary underlying cause?", options: ["Arterial insufficiency", "Venous hypertension and valvular incompetence", "Neuropathic pressure necrosis", "Infective vasculitis"], correct: 1, exp: "Venous stasis ulcers over the gaiter region (medial malleolus) are caused by chronic venous hypertension secondary to deep or superficial valvular incompetence." },
+            { source: "NRE Made Easy", q: "Which clinical feature distinguishes a direct inguinal hernia from an indirect inguinal hernia?", options: ["Direct hernia passes through the deep inguinal ring", "Indirect hernia lies medial to the inferior epigastric vessels", "Direct hernia lies medial to the inferior epigastric vessels", "Direct hernia descends into the scrotum regularly"], correct: 2, exp: "Direct inguinal hernias protrude directly through Hesselbach's triangle, which is situated medial to the inferior epigastric vessels. Indirect hernias enter via the deep ring, lateral to these vessels." },
+            { source: "NRE Made Easy", q: "What is the surgical treatment of choice for a patient diagnosed with a localized, operable adenocarcinoma of the head of the pancreas?", options: ["Distal pancreatectomy", "Total pancreatectomy", "Whipple procedure (Pancreaticoduodenectomy)", "Gastrojejunostomy alone"], correct: 2, exp: "Pancreaticoduodenectomy (Whipple procedure) is the definitive surgical procedure for resectable pancreatic head tumors, ampullary carcinomas, and distal bile duct cancers." },
+            { source: "NRE Made Easy", q: "A 25-year-old male presents with sudden severe right scrotal pain. The right testis is elevated and exquisitely tender. Prehn's sign is negative. What is the definitive management?", options: ["Empiric oral antibiotics", "Scrotal ultrasound and discharge", "Immediate surgical exploration and bilateral orchidopexy", "Manual detorsion only"], correct: 2, exp: "Testicular torsion is a surgical emergency. Immediate bilateral surgical orchidopexy is required within 6 hours to prevent ischemic necrosis and infarction of the testis." },
+            { source: "NRE Made Easy", q: "Which type of thyroid carcinoma is associated with Amyloid stroma and elevated calcitonin levels?", options: ["Papillary thyroid carcinoma", "Follicular thyroid carcinoma", "Medullary thyroid carcinoma", "Anaplastic thyroid carcinoma"], correct: 2, exp: "Medullary thyroid carcinoma arises from parafollicular C-cells and secretes calcitonin. Histopathology demonstrates extracellular amyloid deposits derived from calcitonin." },
+            { source: "NRE Made Easy", q: "A newborn infant presents with bilious vomiting and scaphoid abdomen on the first day of life. Abdominal X-ray displays a 'double bubble' sign. What is the diagnosis?", options: ["Hypertrophic pyloric stenosis", "Duodenal atresia", "Intussusception", "Hirschsprung's disease"], correct: 1, exp: "The double-bubble sign on abdominal radiograph represents air in the stomach and dilated proximal duodenum, which is pathognomonic for congenital duodenal atresia." },
+            { source: "NRE Made Easy", q: "A 40-year-old male presents with massive hematemesis. Upper endoscopy confirms bleeding esophageal varices. What is the first-line pharmacotherapy prior to endoscopy?", options: ["Omeprazole IV", "Terlipressin or Octreotide IV", "Tranexamic acid", "Propranolol"], correct: 1, exp: "Vasoactive drugs like Terlipressin or Octreotide reduce splanchnic blood flow and portal venous pressure, serving as first-line therapy for acute variceal bleeding." },
+            { source: "NRE Made Easy", q: "What is the definitive procedure to manage a symptomatic epidural hematoma displaying a biconvex/lenticular appearance on CT scan?", options: ["Lumbar puncture", "Emergency craniotomy and evacuation", "Observation with mannitol", "Ventrikulostomy alone"], correct: 1, exp: "Epidural hematomas (typically middle meningeal artery rupture) show rapid arterial expansion. Emergency surgical craniotomy and clot evacuation are life-saving." },
+            { source: "NRE Made Easy", q: "Which complication is most specific to total thyroidectomy due to injury of the parathyroid glands?", options: ["Hypercalcemia", "Hypocalcemia and tetany", "Hoarseness", "Dysphagia"], correct: 1, exp: "Inadvertent surgical removal or ischemia of the parathyroid glands during total thyroidectomy leads to hypocalcemia, manifesting as Chvostek/Trousseau signs and tetany." },
+            { source: "NRE Made Easy", q: "A patient presents with severe perianal pain that worsens with bowel movements. Examination reveals a small tear in the posterior midline of the anal canal. What is the initial medical treatment?", options: ["Lateral internal sphincterotomy", "Fistulotomy", "High-fiber diet, stool softeners, and topical nitroglycerin/nifedipine", "Incised drainage"], correct: 2, exp: "First-line conservative management for chronic anal fissures includes fiber supplementation, warm sitz baths, and topical nitrates or calcium channel blockers to reduce sphincter tone." },
+            { source: "NRE Made Easy", q: "In trauma care, what does the 'Triad of Death' in a bleeding surgical patient comprise?", options: ["Hypotension, Bradycardia, Hypothermia", "Hypothermia, Coagulopathy, Acidosis", "Hyperkalemia, Acidosis, Hypothermia", "Hypoxia, Hypercapnia, Acidosis"], correct: 1, exp: "The lethal trauma triad consists of Hypothermia, Acidosis, and Coagulopathy. Recognizing this requires damage control surgery rather than prolonged definitive repair." },
+            { source: "NRE Made Easy", q: "Which stone is radio-lucent on plain abdominal radiographs (KUB)?", options: ["Calcium oxalate", "Calcium phosphate", "Uric acid", "Struvite"], correct: 2, exp: "Uric acid stones are radiolucent and cannot be visualized on plain X-rays (KUB); non-contrast CT abdomen/pelvis is required for identification." },
+            { source: "NRE Made Easy", q: "A 60-year-old male smoker presents with painless gross hematuria. What is the most likely diagnosis?", options: ["Renal cell carcinoma", "Transition cell / Urothelial carcinoma of the bladder", "Acute cystitis", "Benign prostatic hyperplasia"], correct: 1, exp: "Painless gross hematuria in an older adult, especially a smoker, is considered urothelial (bladder) carcinoma until proven otherwise." },
+            { source: "NRE Made Easy", q: "Which subtype of breast carcinoma classically presents with eczema-like skin changes around the nipple-areolar complex?", options: ["Invasive ductal carcinoma", "Invasive lobular carcinoma", "Paget's disease of the breast", "Phyllodes tumor"], correct: 2, exp: "Paget's disease of the breast manifests as a chronic, scaly, erythematous nipple rash caused by malignant intraepithelial adenocarcinoma cells invading the epidermis." },
+            { source: "NRE Made Easy", q: "Which fluid is preferred for initial crystalloid resuscitation in a hypovolemic surgical trauma patient?", options: ["0.45% Normal Saline", "5% Dextrose Water", "Ringer's Lactate (or Plasmalyte)", "Hypertonic Saline 3%"], correct: 2, exp: "Balanced crystalloids like Ringer's Lactate or Plasmalyte are preferred for acute volume expansion as large volumes of 0.9% saline risk hyperchloremic metabolic acidosis." },
+            { source: "NRE Made Easy", q: "What is the primary vascular supply to a split-thickness skin graft during the first 48 hours after application?", options: ["Neovascularization", "Inosculation", "Plasmatic imbibition", "Inosculatory angiogenesis"], correct: 2, exp: "During the first 24–48 hours, skin grafts survive solely via plasmatic imbibition (passive absorption of nutrients and fluid from the host bed)." },
+            { source: "NRE Made Easy", q: "What is the most sensitive initial imaging modality for suspected acute cholecystitis?", options: ["Plain abdominal X-ray", "Abdominal Ultrasound", "CT scan abdomen", "MRCP"], correct: 1, exp: "Ultrasonography of the right upper quadrant is the initial diagnostic test of choice for acute cholecystitis (sensitivity >95%)." },
+            { source: "NRE Made Easy", q: "A patient develops hoarseness immediately following a total thyroidectomy. Examination reveals unilateral vocal cord paralysis. Which nerve was injured?", options: ["Superior laryngeal nerve (external branch)", "Superior laryngeal nerve (internal branch)", "Recurrent laryngeal nerve", "Glossopharyngeal nerve"], correct: 2, exp: "The recurrent laryngeal nerve innervates intrinsic laryngeal muscles except the cricothyroid. Unilateral intraoperative trauma causes vocal cord paralysis and hoarseness." },
+            { source: "NRE Made Easy", q: "A 22-year-old male sustains a fall on an outstretched hand and presents with anatomical snuffbox tenderness. Initial X-ray shows no fracture. What is the correct management?", options: ["Discharge with simple analgesics", "Apply thumb spica cast and repeat X-ray in 10-14 days", "Immediate surgical fixation", "MRI wrist immediately"], correct: 1, exp: "Scaphoid fractures are prone to nonunion and avascular necrosis. If anatomical snuffbox tenderness is present despite normal initial radiographs, immobilize in a thumb spica cast and re-image in 2 weeks." },
+            { source: "NRE Made Easy", q: "What is the gold-standard investigation for evaluating suspected mechanical bowel obstruction when clinical signs are inconclusive?", options: ["Barium swallow", "Abdominal ultrasound", "CT Abdomen and Pelvis with contrast", "Colonoscopy"], correct: 2, exp: "Contrast-enhanced CT scan of the abdomen/pelvis is the most accurate diagnostic tool to confirm bowel obstruction, locate the transition zone, and detect strangulation." },
+            { source: "NRE Made Easy", q: "A patient with ulcerative colitis develops acute toxic megacolon. What is the procedure of choice if emergency surgery is warranted?", options: ["Proctocolectomy with ileal pouch-anal anastomosis", "Total abdominal colectomy with end ileostomy", "Segmental colectomy", "Loop ileostomy alone"], correct: 1, exp: "In emergency toxic megacolon, subtotal/total colectomy with end ileostomy removes the inflamed colon while leaving the rectum for safer second-stage reconstruction once stable." },
+            { source: "NRE Made Easy", q: "What is the most common cause of early postoperative fever occurring within the first 24 to 48 hours after major abdominal surgery?", options: ["Urinary tract infection", "Wound infection", "Atelectasis / Pulmonary complications", "Deep vein thrombosis"], correct: 2, exp: "Atelectasis (lung collapse) is the predominant cause of fever within the first 24–48 hours postoperatively ('Wind')." },
+            { source: "NRE Made Easy", q: "Which landmark marks the anatomical boundary between upper and lower gastrointestinal bleeding?", options: ["Ileocecal valve", "Ligament of Treitz", "Pyloric sphincter", "Sphincter of Oddi"], correct: 1, exp: "The Ligament of Treitz (suspensory muscle of duodenum) defines the junction between the upper GI tract (duodenum) and lower GI tract (jejunum)." },
+            { source: "NRE Made Easy", q: "In a patient presenting with acute lower limb ischemia (cold, pale, pulseless leg), what is the definitive immediate intervention for embolic occlusion?", options: ["Intravenous heparin infusion only", "Emergency Fogarty catheter embolectomy", "Fasciotomy alone", "Amputation"], correct: 1, exp: "Acute embolic limb ischemia requires prompt surgical embolectomy using a Fogarty balloon catheter to restore distal blood flow." },
+            { source: "NRE Made Easy", q: "A 55-year-old female presents with postmenopausal bleeding and endometrial thickness of 12 mm. Biopsy reveals adenocarcinoma. What is the primary surgical staging operation?", options: ["Myomectomy", "Total hysterectomy with bilateral salpingo-oophorectomy and lymph node sampling", "Subtotal hysterectomy", "Oophorectomy alone"], correct: 1, exp: "Definitive surgical treatment and staging for endometrial cancer involves total abdominal/laparoscopic hysterectomy with bilateral salpingo-oophorectomy." },
+            { source: "NRE Made Easy", q: "What is the characteristic feature of a marjolin ulcer?", options: ["Basal cell carcinoma in sun-damaged skin", "Squamous cell carcinoma arising in chronic scars or burn wounds", "Melanoma under the nail bed", "Adenocarcinoma of sweat glands"], correct: 1, exp: "Marjolin ulcer refers to an aggressive Squamous Cell Carcinoma (SCC) arising in chronically inflamed skin, long-standing ulcers, or old burn scars." },
+            { source: "NRE Made Easy", q: "Which nerve is at risk of injury during surgical resection of the submandibular gland?", options: ["Hypoglossal nerve", "Marginal mandibular branch of facial nerve", "Lingual nerve", "All of the above"], correct: 3, exp: "Surgical approach to the submandibular gland places the marginal mandibular branch of CN VII, the lingual nerve, and the hypoglossal nerve at anatomical risk." },
+            { source: "NRE Made Easy", q: "Which classification system is widely used to grade the severity and open nature of traumatic fractures?", options: ["Garden Classification", "Gustilo-Anderson Classification", "Salter-Harris Classification", "Rockwood Classification"], correct: 1, exp: "The Gustilo-Anderson system categorizes open fractures (Types I to III) based on soft tissue injury, wound size, and contamination." },
+            { source: "NRE Made Easy", q: "A 3-year-old boy presents with abdominal pain, bloody 'currant jelly' stools, and a sausage-shaped mass in the right upper quadrant. What is the diagnosis?", options: ["Acute appendicitis", "Intussusception", "Volvulus", "Meckel's diverticulitis"], correct: 1, exp: "Intussusception typically presents in young children with episodic colic, a palpable sausage-shaped mass, and 'currant jelly' mucous bloody stools." },
+            { source: "NRE Made Easy", q: "Which fluid non-surgical reduction technique is first-line for uncomplicated pediatric intussusception?", options: ["Exploratory laparotomy", "Air or contrast hydrostatic enema under fluoroscopy/ultrasound", "Manual reduction", "Nasogastric suction"], correct: 1, exp: "Pneumatic (air) or hydrostatic (saline/contrast) enema under imaging guidance is successful in >80% of pediatric intussusception cases." },
+            { source: "NRE Made Easy", q: "What is the surgical management of choice for symptomatic, obstructive Benign Prostatic Hyperplasia (BPH) refractory to medical therapy?", options: ["Radical prostatectomy", "Transurethral resection of the prostate (TURP)", "Orchidectomy", "Radiation therapy"], correct: 1, exp: "TURP remains the standard gold-surgical intervention for symptomatic lower urinary tract symptoms secondary to BPH." },
+            { source: "NRE Made Easy", q: "Which suture material is classified as a synthetic monofilament non-absorbable suture commonly used for vascular anastomoses?", options: ["Vicryl (Polyglactin)", "Prolene (Polypropylene)", "Chromic Catgut", "PDS (Polydioxanone)"], correct: 1, exp: "Polypropylene (Prolene) is a non-absorbable monofilament suture providing high tensile strength and minimal tissue reactivity, ideal for vascular procedures." },
+            { source: "NRE Made Easy", q: "A 45-year-old male presents with severe chest pain following violent vomiting. Contrast swallow demonstrates esophageal perforation into the mediastinum. What is this syndrome?", options: ["Mallory-Weiss syndrome", "Boerhaave syndrome", "Plummer-Vinson syndrome", "Zollinger-Ellison syndrome"], correct: 1, exp: "Boerhaave syndrome is transmural esophageal rupture secondary to severe retching or vomiting, leading to pneumomediastinum and mediastinitis." },
+            { source: "NRE Made Easy", q: "What is the most common histological type of esophageal cancer worldwide?", options: ["Adenocarcinoma", "Squamous cell carcinoma", "Small cell carcinoma", "Leiomyosarcoma"], correct: 1, exp: "Squamous cell carcinoma is the most common subtype worldwide (linked to alcohol and tobacco), although adenocarcinoma is rising in Western countries due to Barrett's esophagus." },
+            { source: "NRE Made Easy", q: "In a patient suspected of having pheochromocytoma, what initial diagnostic test should be performed?", options: ["Renal artery angiography", "Plasma or 24-hour urinary fractionated metanephrines", "CT scan of abdomen", "Serum aldosterone"], correct: 1, exp: "Measurement of free plasma metanephrines or 24-hour urinary metanephrines is the first-line screening test for pheochromocytoma due to high sensitivity." },
+            { source: "NRE Made Easy", q: "Which medication must be administered before initiating beta-blocker therapy in a patient with pheochromocytoma?", options: ["Alpha-blocker (e.g., Phenoxybenzamine)", "ACE inhibitor", "Calcium channel blocker", "Loop diuretic"], correct: 0, exp: "Alpha-blockade (phenoxybenzamine) must always precede beta-blocker therapy to prevent unopposed alpha-receptor stimulation leading to hypertensive crisis." },
+            { source: "NRE Made Easy", q: "What is the most frequent site of distant metastasis for colorectal cancer?", options: ["Lungs", "Bone", "Liver", "Brain"], correct: 2, exp: "The liver is the primary site of hematogenous metastasis for colorectal cancer via portal circulation drainage." },
+            { source: "NRE Made Easy", q: "A 35-year-old trauma victim arrives with paradoxical inward movement of a chest wall segment during inspiration. What is the diagnosis?", options: ["Simple pneumothorax", "Flail chest", "Tension pneumothorax", "Diaphragmatic rupture"], correct: 1, exp: "Flail chest occurs when 3 or more contiguous ribs are fractured in 2 or more places, creating an unstable chest segment displaying paradoxical motion." },
+            { source: "NRE Made Easy", q: "What is the surgical treatment for hypertrophic pyloric stenosis in infants?", options: ["Nissen fundoplication", "Ramstedt pyloromyotomy", "Billroth I gastrectomy", "Roux-en-Y bypass"], correct: 1, exp: "Ramstedt pyloromyotomy (incising the hypertrophied pyloric muscle down to the mucosa) is the definitive surgical treatment." },
+            { source: "NRE Made Easy", q: "Which structure is incised during a carpal tunnel release surgery to relieve median nerve compression?", options: ["Flexor retinaculum (Transverse carpal ligament)", "Extensor retinaculum", "Palmar aponeurosis", "Radial collateral ligament"], correct: 0, exp: "Surgical decompression of carpal tunnel syndrome involves division of the transverse carpal ligament (flexor retinaculum)." },
+            { source: "NRE Made Easy", q: "A patient presents with a solitary, firm, painless thyroid nodule. Fine Needle Aspiration Cytology (FNAC) shows Orphan Annie eyes nuclei and psammoma bodies. What is the diagnosis?", options: ["Follicular carcinoma", "Papillary thyroid carcinoma", "Medullary carcinoma", "Anaplastic carcinoma"], correct: 1, exp: "Optically clear 'Orphan Annie' nuclei, nuclear grooves, and laminated calcified psammoma bodies are pathognomonic for papillary thyroid carcinoma." },
+            { source: "NRE Made Easy", q: "What is the first step in managing a patient with suspected tension pneumothorax before obtaining an X-ray?", options: ["Immediate needle decompression", "Chest tube insertion", "Intubation", "High-flow oxygen"], correct: 0, exp: "Tension pneumothorax is a clinical diagnosis. Immediate needle thoracostomy in the 2nd intercostal space (midclavicular) or 5th intercostal space (midaxillary) is critical." },
+            { source: "NRE Made Easy", q: "Which hernia has the highest risk of incarceration and strangulation among abdominal wall hernias?", options: ["Direct inguinal hernia", "Indirect inguinal hernia", "Femoral hernia", "Umbilical hernia"], correct: 2, exp: "Femoral hernias have a narrow rigid neck bounded by Lacunar ligament, predisposing them to the highest rate of incarceration and strangulation." },
+            { source: "NRE Made Easy", q: "In a patient presenting with Charcot's triad (fever, jaundice, RUQ pain) and hypotension with confusion, what condition is indicated?", options: ["Acute cholecystitis", "Reynolds' Pentad / Acute Suppurative Cholangitis", "Acute pancreatitis", "Biliary colic"], correct: 1, exp: "Charcot's triad plus altered mental status and septic shock constitutes Reynolds' Pentad, signaling severe acute suppurative cholangitis requiring emergent biliary drainage." },
+            { source: "NRE Made Easy", q: "Which nerve is typically preserved in a modified radical mastectomy but severed in a radical mastectomy?", options: ["Long thoracic nerve", "Thoracodorsal nerve", "Pectoral nerves", "Intercostobrachial nerve"], correct: 2, exp: "Modified radical mastectomy preserves the pectoralis major and minor muscles and their innervating pectoral nerves, unlike classic radical mastectomy." },
+            { source: "NRE Made Easy", q: "What is the imaging modality of choice to diagnose acute appendicitis in pregnant women and pediatric populations to avoid radiation?", options: ["CT Scan", "Abdominal Ultrasound", "MRI", "Plain X-ray"], correct: 1, exp: "Graded compression ultrasonography is the initial non-invasive modality of choice for suspected appendicitis in pregnant and pediatric patients." },
 
-            // --- 50 NUMS UNIVERSITY PAST MCQS (SURGERY) ---
-            {
-                source: "NUMS University",
-                q: "When neonates present with surgical or medical problems, certain factors need to be addressed. What are these factors?",
-                options: ["Hyperthermia, hypoxia, hypotonia", "Hypoxia, hypothermia, hypoglycemia", "Hypoxia, hypotonia, hypotension", "Hypoxia, hypoglycemia, hyperthermia"],
-                correct: 1,
-                exp: "Neonates undergoing surgical stress are particularly vulnerable to the classic triad: Hypoxia, Hypothermia, and Hypoglycemia, which must be systematically corrected."
-            },
-            {
-                source: "NUMS University",
-                q: "In congenital atresia of the esophagus with tracheoesophageal fistula, which scenario is most commonly observed?",
-                options: ["Upper segment communicates with the trachea", "Lower segment communicates with the trachea", "Both segments communicate with the trachea", "Both segments end blindly"],
-                correct: 1,
-                exp: "The most common anatomical variant (Type C - ~85%) consists of a proximal esophageal atresia ending in a blind pouch and a distal esophageal segment forming a fistula with the trachea."
-            },
-            {
-                source: "NUMS University",
-                q: "A 4-year-old boy experiences sudden severe pain in the scrotum. On examination, the right side of the scrotum appears red, swollen, and very tender. The testis is positioned slightly higher. What is the likely diagnosis?",
-                options: ["Epididymitis", "Hematocele", "Torsion of the testis", "Obstructed inguinoscrotal hernia"],
-                correct: 2,
-                exp: "Sudden onset scrotal pain, elevated/high-riding testis, and local tenderness in a young boy strongly point to testicular torsion."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the most appropriate treatment for a 45-year-old physically fit patient diagnosed with periampullary cancer with no metastasis?",
-                options: ["Whipple procedure", "Palliation only", "External radiotherapy", "Stent and chemotherapy"],
-                correct: 0,
-                exp: "Potentially curative treatment for fit patients with localized non-metastatic periampullary malignancy is surgical resection via the Whipple procedure (pancreaticoduodenectomy)."
-            },
-            {
-                source: "NUMS University",
-                q: "Which of the following is NOT considered a good surgical treatment option in patients with Crohn's disease?",
-                options: ["Restorative proctocolectomy with ileoanal pouch", "Stricturoplasty", "Segmental resection", "Colectomy with anastomosis"],
-                correct: 0,
-                exp: "Restorative proctocolectomy with ileoanal pouch (IPAA) is contraindicated in Crohn's disease due to high recurrence rates, fistula formation, and pouch failure. It is reserved for Ulcerative Colitis."
-            },
-            {
-                source: "NUMS University",
-                q: "After an appendectomy for acute appendicitis, histopathology reveals a carcinoid tumor near the tip measuring 0.8 cm. Which statement is INCORRECT regarding this patient?",
-                options: ["It rarely metastasizes", "Appendectomy is an effective treatment option", "Right hemicolectomy should be carried out", "Mostly involves the distal third of the appendix"],
-                correct: 2,
-                exp: "Carcinoid tumors of the appendix < 1 cm located at the tip are fully treated with appendectomy alone. Right hemicolectomy is NOT required unless the tumor is > 2 cm or involves the base."
-            },
-            {
-                source: "NUMS University",
-                q: "A 52-year-old man with a history of heavy alcohol consumption presents with epigastric pain, elevated white cell count, and markedly elevated amylase. What is the most likely diagnosis?",
-                options: ["Acute pancreatitis", "Biliary colic", "Chronic pancreatitis", "Hiatus hernia"],
-                correct: 0,
-                exp: "Severe epigastric abdominal pain accompanied by significant elevations in serum amylase/lipase in an alcoholic patient is characteristic of Acute Pancreatitis."
-            },
-            {
-                source: "NUMS University",
-                q: "A 43-year-old man presents with ongoing abdominal pain, vomiting, and fever weeks after an episode of acute pancreatitis. A palpable upper abdominal mass is noted. What is the most likely diagnosis?",
-                options: ["Abdominal aortic aneurysm", "Carcinoma of the pancreas", "Empyema of gallbladder", "Pseudocyst of the lesser sac"],
-                correct: 3,
-                exp: "Pancreatic pseudocyst occurs as a delayed complication (>4 weeks) of acute pancreatitis, presenting as a fluid collection enclosed by fibrous tissue in the lesser sac."
-            },
-            {
-                source: "NUMS University",
-                q: "A 62-year-old man has adenocarcinoma at the ampulla of Vater without distant or loco-regional involvement. What is the most appropriate operation?",
-                options: ["Cholecystectomy", "Distal pancreatectomy", "Gastrojejunostomy", "Pancreaticoduodenectomy"],
-                correct: 3,
-                exp: "Curative intent management for ampullary adenocarcinoma is Pancreaticoduodenectomy (Whipple procedure)."
-            },
-            {
-                source: "NUMS University",
-                q: "In which case is surgery NOT the preferred treatment option for thyroid pathology?",
-                options: ["Diffuse toxic goiter", "Severe Graves ophthalmopathy manifestations", "Euthyroid goiter without local compressive symptoms", "Solitary thyroid nodule"],
-                correct: 2,
-                exp: "An asymptomatic euthyroid goiter without compressive symptoms or suspicion of malignancy does not require surgical management and can be observed."
-            },
-            {
-                source: "NUMS University",
-                q: "A 40-year-old female presents with right hypochondrium pain for 2 days. Ultrasound reveals an edematous distended gallbladder with multiple stones and a dilated common bile duct with suspected stone. What is the most appropriate initial management?",
-                options: ["ERCP followed by laparoscopic cholecystectomy", "Elective laparoscopic cholecystectomy only", "Choledochoduodenostomy", "Open cholecystectomy with T-tube insertion"],
-                correct: 0,
-                exp: "When choledocholithiasis coexists with gallstone disease, ERCP for CBD stone clearance followed by laparoscopic cholecystectomy is the standard management."
-            },
-            {
-                source: "NUMS University",
-                q: "Which procedure is considered the standard surgical choice for symptomatic high-grade carotid artery stenosis (>70%)?",
-                options: ["Carotid endarterectomy (CEA)", "Carotid artery bypass", "Balloon angioplasty without stent", "Subclavian steal repair"],
-                correct: 0,
-                exp: "Carotid Endarterectomy (CEA) is the gold standard surgical intervention to prevent stroke in symptomatic patients with 70–99% internal carotid artery stenosis."
-            },
-            {
-                source: "NUMS University",
-                q: "Which type of mechanical bowel obstruction is characterized by a 'coffee-bean' sign on plain abdominal X-ray?",
-                options: ["Small bowel adhesion", "Sigmoid volvulus", "Cecal bascule", "Intussusception"],
-                correct: 1,
-                exp: "A classic coffee-bean shaped air-filled loop of dilated bowel arising from the pelvis and pointing to the upper quadrant is pathognomonic for Sigmoid Volvulus."
-            },
-            {
-                source: "NUMS University",
-                q: "A 60-year-old smoker presents with intermittent claudication in the calf at 100 meters. Ankle-Brachial Index (ABI) is 0.65. What is the initial recommended treatment?",
-                options: ["Immediate arterial bypass surgery", "Supervised exercise therapy, smoking cessation, and antiplatelet medication", "Amputation", "Urgent thrombolysis"],
-                correct: 1,
-                exp: "First-line conservative therapy for stable mild-to-moderate peripheral artery disease includes smoking cessation, structured exercise training, statins, and antiplatelet drugs."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the most common cause of spontaneous pneumothorax in an otherwise healthy tall, thin young male?",
-                options: ["Rupture of subpleural apical blebs", "Tuberculosis", "Bronchial asthma", "Traumatic rib fracture"],
-                correct: 0,
-                exp: "Primary spontaneous pneumothorax typically occurs in tall, thin young males due to spontaneous rupture of subpleural apical blebs or bullae."
-            },
-            {
-                source: "NUMS University",
-                q: "A 35-year-old female presents with a solitary thyroid nodule. FNAC indicates Follicular Neoplasm. What is the next essential step?",
-                options: ["Radioactive iodine ablation directly", "Thyroid lobectomy / Hemithyroidectomy for histopathological diagnosis", "Chemotherapy", "Observation only"],
-                correct: 1,
-                exp: "FNAC cannot differentiate between benign follicular adenoma and malignant follicular carcinoma because capsular/vascular invasion must be evaluated on formal histology following surgical excision."
-            },
-            {
-                source: "NUMS University",
-                q: "Which triangle of the neck contains the subclavian artery?",
-                options: ["Carotid triangle", "Submandibular triangle", "Supraclavicular (Subclavian) triangle", "Muscular triangle"],
-                correct: 2,
-                exp: "The supraclavicular triangle (part of the posterior triangle) contains the third part of the subclavian artery and trunks of the brachial plexus."
-            },
-            {
-                source: "NUMS University",
-                q: "Which of the following hernia repair techniques uses a synthetic mesh placed tension-free over the inguinal floor?",
-                options: ["Bassini repair", "Shouldice repair", "Lichtenstein repair", "McVay repair"],
-                correct: 2,
-                exp: "The Lichtenstein tension-free hernioplasty utilizes a polypropylene mesh placed over the inguinal canal floor and is the standard open hernia repair technique."
-            },
-            {
-                source: "NUMS University",
-                q: "A 50-year-old male with long-standing heartburn develops columnar metaplasia of the lower esophagus. What is this condition called?",
-                options: ["Squamous dysplasia", "Barrett's esophagus", "Mallory-Weiss tear", "Achalasia cardia"],
-                correct: 1,
-                exp: "Barrett's esophagus is intestinal metaplasia (replacement of normal stratified squamous epithelium with columnar epithelium containing goblet cells) secondary to chronic GERD."
-            },
-            {
-                source: "NUMS University",
-                q: "Which symptom complex defines Charcot's Triad for acute cholangitis?",
-                options: ["Fever, Right upper quadrant pain, Jaundice", "Jaundice, Hypotension, Altered mental status", "Fever, Diarrhea, Vomiting", "RUQ pain, Palpable gallbladder, Fever"],
-                correct: 0,
-                exp: "Charcot's triad of ascending cholangitis consists of Fever, Right Upper Quadrant Pain, and Jaundice. Addition of shock and confusion makes Reynolds' Pentad."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the primary factor responsible for delayed wound healing in a diabetic surgical patient?",
-                options: ["Hypercalcemia", "Microvascular disease and impaired leukocyte function secondary to hyperglycemia", "Hypoproteinemia alone", "Excess collagen deposition"],
-                correct: 1,
-                exp: "Hyperglycemia impairs neutrophil chemotaxis, phagocytosis, and angiogenesis, while microvascular changes impair local tissue perfusion."
-            },
-            {
-                source: "NUMS University",
-                q: "A patient involved in a motor vehicle accident presents with blood at the urethral meatus and a high-riding prostate on rectal exam. What is the next diagnostic step?",
-                options: ["Immediate Foley catheterization", "Retrograde urethrogram (RUG)", "Suprapubic cystostomy without imaging", "Renal ultrasound"],
-                correct: 1,
-                exp: "Blood at the urethral meatus suggests urethral injury. A Retrograde Urethrogram (RUG) must be performed to confirm integrity before blind catheter insertion."
-            },
-            {
-                source: "NUMS University",
-                q: "Which bone is most commonly fractured in the human body during direct trauma or falls?",
-                options: ["Femur", "Clavicle", "Scapula", "Radius"],
-                correct: 1,
-                exp: "The clavicle is one of the most frequently fractured bones, particularly at the junction of its middle and lateral thirds following a direct fall onto the shoulder."
-            },
-            {
-                source: "NUMS University",
-                q: "A 48-year-old female presents with severe pain in the epigastrium radiating to the back. Serum lipase is 1200 U/L. Which scoring system is specifically used to assess severity within 48 hours?",
-                options: ["Ranson score / APACHE II", "Glasgow Coma Scale", "Child-Pugh Score", "MELD Score"],
-                correct: 0,
-                exp: "Ranson's criteria and APACHE II score are validated prognostic tools used to stratify severity in acute pancreatitis."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the definitive initial surgical management for a tension pneumothorax?",
-                options: ["Immediate needle thoracocentesis followed by chest tube insertion", "Diagnostic thoracotomy", "Intubation", "High-flow oxygen alone"],
-                correct: 0,
-                exp: "Emergency needle decompression in the 2nd/5th intercostal space relieves life-threatening tension, followed by formal tube thoracostomy (chest tube placement)."
-            },
-            {
-                source: "NUMS University",
-                q: "Which type of skin flap relies on a named vascular pedicle for its blood supply?",
-                options: ["Random pattern flap", "Axial pattern flap", "Free skin graft", "Split-thickness graft"],
-                correct: 1,
-                exp: "Axial flaps contain a direct cutaneous arterial and venous network along their longitudinal axis, allowing greater length-to-width ratios than random flaps."
-            },
-            {
-                source: "NUMS University",
-                q: "Which organism is most frequently implicated in post-splenectomy sepsis (OPSS)?",
-                options: ["Streptococcus pneumoniae", "Escherichia coli", "Pseudomonas aeruginosa", "Staphylococcus aureus"],
-                correct: 0,
-                exp: "Streptococcus pneumoniae is responsible for >50% of cases of Overwhelming Post-Splenectomy Infection (OPSI), followed by H. influenzae and N. meningitidis."
-            },
-            {
-                source: "NUMS University",
-                q: "A 65-year-old male presents with constipation, weight loss, and altered bowel habits. Barium enema demonstrates an 'apple-core' lesion in the sigmoid colon. What is the diagnosis?",
-                options: ["Diverticulitis", "Colonic Adenocarcinoma", "Ulcerative colitis", "Volvulus"],
-                correct: 1,
-                exp: "An 'apple-core' circumferential napkin-ring defect on barium enema is classic for invasive colorectal carcinoma."
-            },
-            {
-                source: "NUMS University",
-                q: "Which tumor marker is elevated in non-seminomatous germ cell tumors of the testis but elevated in pure seminoma?",
-                options: ["Alpha-Fetoprotein (AFP)", "Beta-hCG", "CA-125", "CEA"],
-                correct: 0,
-                exp: "Alpha-Fetoprotein (AFP) is elevated in non-seminomatous testicular tumors (yolk sac, embryonal) but is normal in pure seminomas."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the most sensitive diagnostic sign for physical examination of acute appendicitis?",
-                options: ["McBurney's point tenderness", "Rovsing's sign", "Obturator sign", "Psoas sign"],
-                correct: 0,
-                exp: "Tenderness at McBurney's point (one-third the distance from the anterior superior iliac spine to the umbilicus) is the most sensitive physical finding."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the management of choice for an asymptomatic abdominal aortic aneurysm (AAA) measuring 4.0 cm in diameter?",
-                options: ["Immediate open surgical repair", "EVAR (Endovascular aneurysm repair)", "Regular ultrasound surveillance every 6-12 months", "Lifelong anticoagulation"],
-                correct: 2,
-                exp: "Small asymptomatic AAAs (<5.5 cm in men, <5.0 cm in women) are managed conservatively with ultrasound surveillance and cardiovascular risk reduction."
-            },
-            {
-                source: "NUMS University",
-                q: "A patient presents with a soft, painless mass in the midline of the neck that moves upward upon tongue protrusion. What is the diagnosis?",
-                options: ["Branchial cleft cyst", "Thyroglossal duct cyst", "Dermoid cyst", "Cervical lymphadenopathy"],
-                correct: 1,
-                exp: "Thyroglossal duct cysts are attached to the hyoid bone and base of the tongue via the embryological duct remnant, causing elevation on tongue protrusion."
-            },
-            {
-                source: "NUMS University",
-                q: "Which nerve injury results in 'winged scapula' following radical mastectomy or axillary lymph node dissection?",
-                options: ["Thoracodorsal nerve", "Long thoracic nerve", "Intercostobrachial nerve", "Axillary nerve"],
-                correct: 1,
-                exp: "The long thoracic nerve innervates the serratus anterior muscle. Injury during axillary surgery leads to winging of the scapula."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the standard surgical procedure for acute complicated diverticulitis with purulent/fecal peritonitis (Hinchey III/IV)?",
-                options: ["Hartmann's procedure (sigmoidectomy with end colostomy)", "Elective pouch surgery", "Laparoscopic lavage only", "Segmental resection with primary anastomosis without stoma"],
-                correct: 0,
-                exp: "Hartmann's procedure (resection of the diseased bowel segment, closure of the rectal stump, and creation of a proximal end colostomy) is classic for septic diverticular peritonitis."
-            },
-            {
-                source: "NUMS University",
-                q: "A patient with varicose veins undergoes a Trendelenburg test to evaluate saphenofemoral junction competence. What does rapid filling from above upon standing indicate?",
-                options: ["Saphenofemoral junction incompetence", "Deep venous thrombosis", "Perforator vein incompetence", "Normal venous tone"],
-                correct: 0,
-                exp: "Rapid retrograde filling of superficial veins upon standing following tourniquet release at the groin confirms saphenofemoral junction valvular incompetence."
-            },
-            {
-                source: "NUMS University",
-                q: "Which type of hernia carries the highest risk of strangulation and ink-incarceration?",
-                options: ["Direct inguinal hernia", "Indirect inguinal hernia", "Femoral hernia", "Umbilical hernia"],
-                correct: 2,
-                exp: "Femoral hernias pass through the narrow femoral ring bounded by rigid ligamentous structures, predisposing them to incarceration and strangulation."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the treatment of choice for a high-grade gastrointestinal stromal tumor (GIST) showing KIT (CD117) positivity?",
-                options: ["Surgical resection followed by Imatinib (tyrosine kinase inhibitor)", "Radiation therapy alone", "Systemic chemotherapy with 5-FU", "Hormonal therapy"],
-                correct: 0,
-                exp: "Complete surgical resection is primary treatment, and target biological therapy with Imatinib mesylate is indicated for advanced or high-risk c-KIT positive GISTs."
-            },
-            {
-                source: "NUMS University",
-                q: "Which nerve lies in close proximity to the thyroid gland's inferior artery and must be preserved during thyroid lobectomy?",
-                options: ["Recurrent laryngeal nerve", "External laryngeal nerve", "Internal laryngeal nerve", "Ansa cervicalis"],
-                correct: 0,
-                exp: "The recurrent laryngeal nerve intimately crosses or runs adjacent to branches of the inferior thyroid artery near the lower pole of the thyroid gland."
-            },
-            {
-                source: "NUMS University",
-                q: "A 70-year-old male with long-standing atrial fibrillation presents with sudden severe abdominal pain out of proportion to physical exam findings. What is the diagnosis?",
-                options: ["Acute mesenteric ischemia", "Perforated peptic ulcer", "Acute appendicitis", "Acute cholecystitis"],
-                correct: 0,
-                exp: "Sudden onset severe abdominal pain out of proportion to minimal physical examination findings in an elderly patient with atrial fibrillation is classic for superior mesenteric artery embolismus."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the primary management for an uninfected hematoma secondary to blunt trauma?",
-                options: ["Surgical incision and drainage immediately", "Conservative management (rest, ice, compression, elevation)", "Systemic broad-spectrum antibiotics", "Repeated needle aspiration"],
-                correct: 1,
-                exp: "Uninfected soft tissue hematomas are managed conservatively as they spontaneously resorb. Routine needle aspiration or incision risks secondary bacterial infection."
-            },
-            {
-                source: "NUMS University",
-                q: "Which subtype of melanoma is most common on the palms, soles, and subungual regions of dark-skinned individuals?",
-                options: ["Superficial spreading melanoma", "Nodular melanoma", "Acral lentiginous melanoma", "Lentigo maligna melanoma"],
-                correct: 2,
-                exp: "Acral lentiginous melanoma is the predominant subtype of melanoma diagnosed in non-Caucasian patients, occurring on glabrous skin (palms, soles, nails)."
-            },
-            {
-                source: "NUMS University",
-                q: "A patient develops facial twitching upon tapping the facial nerve anterior to the ear lobe following total thyroidectomy. What is this clinical sign?",
-                options: ["Trousseau's sign", "Chvostek's sign", "Tinel's sign", "Homans' sign"],
-                correct: 1,
-                exp: "Chvostek's sign is ipsilateral facial muscle twitching elicited by tapping the facial nerve, indicating neuromuscular hyperexcitability due to hypocalcemia."
-            },
-            {
-                source: "NUMS University",
-                q: "Which complication is characterized by persistent pain, swelling, and motor dysfunction following tight casting or circumferential extremity burns?",
-                options: ["Compartment syndrome", "Reflex sympathetic dystrophy", "Osteomyelitis", "Avascular necrosis"],
-                correct: 0,
-                exp: "Compartment syndrome results from increased tissue pressure within a closed fascial compartment, threatening tissue viability and requiring emergency fasciotomy."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the most effective initial investigation for evaluating lower extremity deep vein thrombosis (DVT)?",
-                options: ["Contrast venography", "Duplex Ultrasound", "D-Dimer alone", "CT Angiography"],
-                correct: 1,
-                exp: "Duplex ultrasonography (combining B-mode compression and Doppler analysis) is the non-invasive imaging modality of choice for confirming DVT."
-            },
-            {
-                source: "NUMS University",
-                q: "Which operation is performed for achalasia cardia refractory to medical or endoscopic balloon dilation?",
-                options: ["Heller myotomy (often with fundoplication)", "Ramstedt pyloromyotomy", "Nissen fundoplication alone", "Esophagectomy"],
-                correct: 0,
-                exp: "Surgical management of achalasia is laparoscopic Heller myotomy (cutting the lower esophageal sphincter muscle fibers), usually combined with a partial fundoplication."
-            },
-            {
-                source: "NUMS University",
-                q: "A 30-year-old trauma patient has a Glasgow Coma Scale (GCS) score of 7. What is the immediate priority management?",
-                options: ["Perform brain MRI", "Endotracheal intubation for airway protection (GCS <= 8)", "IV mannitol infusion", "Hyperventilation therapy"],
-                correct: 1,
-                exp: "ATLS principles dictate that any trauma patient with a GCS score of 8 or lower requires immediate endotracheal intubation to secure the airway."
-            },
-            {
-                source: "NUMS University",
-                q: "Which surgical condition causes intermittent claudication of the upper extremity along with transient ischemic attacks during arm exercise?",
-                options: ["Thoracic outlet syndrome", "Subclavian steal syndrome", "Raynaud's phenomenon", "Buerger's disease"],
-                correct: 1,
-                exp: "Subclavian steal syndrome occurs due to proximal subclavian artery occlusion, causing retrograde flow in the vertebral artery during upper limb exertion, leading to CNS ischemia."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the primary therapeutic goal of a Nissen Fundoplication procedure?",
-                options: ["Reduction of gastric acid secretion", "Restoration of lower esophageal sphincter competency to treat severe GERD", "Acceleration of gastric emptying", "Resection of esophageal tumor"],
-                correct: 1,
-                exp: "Nissen fundoplication wraps the gastric fundus 360 degrees around the distal esophagus to restore lower esophageal sphincter pressure and prevent gastroesophageal reflux."
-            },
-            {
-                source: "NUMS University",
-                q: "Which hernia passes through the obturator canal and classically presents with pain along the inner thigh extending to the knee (Howship-Romberg sign)?",
-                options: ["Femoral hernia", "Obturator hernia", "Sciatic hernia", "Lumbar hernia"],
-                correct: 1,
-                exp: "Obturator hernias pass through the obturator canal, compressing the obturator nerve and producing inner thigh pain radiating to the knee (Howship-Romberg sign)."
-            },
-            {
-                source: "NUMS University",
-                q: "What is the standard surgical incision used for emergency open appendectomy?",
-                options: ["Kocher incision", "McBurney / Gridiron incision (or Lanz incision)", "Pfannenstiel incision", "Mercedes-Benz incision"],
-                correct: 1,
-                exp: "McBurney's gridiron incision (or Lanz transverse skin crease incision) in the right lower quadrant is the classic open surgical access for acute appendectomy."
-            }
+            // --- 50 NUMS UNIVERSITY SURGERY PAST PAPERS ---
+            { source: "NUMS University", q: "What is the most common cause of small bowel obstruction in adult patients with prior abdominal surgery?", options: ["Incarcerated Hernia", "Postoperative Adhesions", "Intussusception", "Volvulus"], correct: 1, exp: "Postoperative peritoneal adhesions account for over 60–70% of all small bowel obstruction cases in adults with surgical history." },
+            { source: "NUMS University", q: "A 50-year-old male with severe upper abdominal pain radiating to the back exhibits Grey Turner's and Cullen's signs. What is the diagnosis?", options: ["Severe Acute Hemorrhagic Pancreatitis", "Perforated Peptic Ulcer", "Acute Cholecystitis", "Ruptured Abdominal Aortic Aneurysm"], correct: 0, exp: "Cullen's sign (periumbilical ecchymosis) and Grey Turner's sign (flank ecchymosis) indicate retroperitoneal hemorrhage seen in severe acute pancreatitis." },
+            { source: "NUMS University", q: "What is the most common type of gallstone encountered in Western and South Asian clinical practice?", options: ["Black pigment stones", "Brown pigment stones", "Mixed/Cholesterol stones", "Calcium carbonate stones"], correct: 2, exp: "Cholesterol/mixed gallstones account for approximately 80% of all gallstones in clinical practice." },
+            { source: "NUMS University", q: "Which physical exam finding is most specific for acute appendicitis?", options: ["Murphy's sign", "McBurney's point tenderness / Rovsing's sign", "Kehr's sign", "Courvoisier's sign"], correct: 1, exp: "Tenderness at McBurney's point (one-third distance from ASIS to umbilicus) combined with rebound and Rovsing's sign is highly characteristic of acute appendicitis." },
+            { source: "NUMS University", q: "Courvoisier's law states that in the presence of a palpably enlarged, non-tender gallbladder with jaundice, the cause is unlikely to be gallstones. What is the most likely cause?", options: ["Choledocholithiasis", "Malignancy of head of pancreas or biliary tree", "Acute acalculous cholecystitis", "Primary biliary cholangitis"], correct: 1, exp: "Courvoisier's sign indicates underlying pancreatic head cancer or cholangiocarcinoma causing chronic distal bile duct occlusion and gallbladder dilatation." },
+            { source: "NUMS University", q: "What is the gold standard diagnostic investigation for achalasia cardia?", options: ["Barium swallow", "High-resolution esophageal manometry", "Upper GI endoscopy", "24-hour pH monitoring"], correct: 1, exp: "Esophageal manometry showing aperistalsis and incomplete LES relaxation is the gold standard for diagnosing achalasia." },
+            { source: "NUMS University", q: "A patient presents with a large pelvic fracture and inability to void. Examination shows blood at the urethral meatus and a high-riding prostate. What is the next best step?", options: ["Immediate Foley catheterization", "Retrograde urethrogram (RUG)", "Suprapubic catheterization without imaging", "Renal ultrasound"], correct: 1, exp: "Blood at meatus and high-riding prostate suggest urethral disruption. Retrograde urethrogram must be performed before inserting a urethral catheter." },
+            { source: "NUMS University", q: "Which arterial structure is damaged in an epidural hematoma following trauma to the pterion?", options: ["Anterior cerebral artery", "Middle meningeal artery", "Internal carotid artery", "Vertebral artery"], correct: 1, exp: "The middle meningeal artery lies directly beneath the pterion and is susceptible to laceration in temporal bone fractures." },
+            { source: "NUMS University", q: "What is the surgical management for a diagnosed symptomatic indirect inguinal hernia in an otherwise fit adult?", options: ["Watchful waiting", "Lichtenstein tension-free mesh repair", "Primary tissue repair under tension", "Laparoscopic orchidectomy"], correct: 1, exp: "Lichtenstein tension-free repair using synthetic mesh is the standard gold surgical operation for inguinal hernias." },
+            { source: "NUMS University", q: "Which vitamin deficiency leads to impaired collagen hydroxylation, resulting in poor wound healing and wound dehiscence?", options: ["Vitamin A", "Vitamin B12", "Vitamin C", "Vitamin K"], correct: 2, exp: "Vitamin C (ascorbic acid) is a critical cofactor for proline and lysine hydroxylation during collagen synthesis." },
+            { source: "NUMS University", q: "A 65-year-old male with long-standing atrial fibrillation presents with sudden severe abdominal pain out of proportion to physical exam findings. What is the diagnosis?", options: ["Acute mesenteric ischemia", "Perforated diverticulitis", "Acute appendicitis", "Ischemic colitis"], correct: 0, exp: "Acute mesenteric ischemia (typically superior mesenteric artery embolus) presents classic for pain out of proportion to physical signs." },
+            { source: "NUMS University", q: "What is the definitive surgical treatment for primary hyperparathyroidism due to a single parathyroid adenoma?", options: ["Subtotal parathyroidectomy", "Targeted parathyroid adenomectomy", "Medical management with bisphosphonates", "Total thyroidectomy"], correct: 1, exp: "Resection of the single hyperfunctioning parathyroid adenoma is curative in majority of primary hyperparathyroidism cases." },
+            { source: "NUMS University", q: "Which vein is most commonly affected in superficial thrombophlebitis of the lower limb?", options: ["Femoral vein", "Great saphenous vein", "Popliteal vein", "Profunda femoris vein"], correct: 1, exp: "Superficial thrombophlebitis most commonly involves the Great Saphenous Vein in varicose lower extremities." },
+            { source: "NUMS University", q: "What is the initial diagnostic test for suspected deep vein thrombosis (DVT)?", options: ["Venous duplex ultrasound", "Venography", "D-dimer alone in high-probability patients", "CT angiography"], correct: 0, exp: "Compression venous duplex ultrasonography is non-invasive and the first-line choice for DVT diagnosis." },
+            { source: "NUMS University", q: "Which complication is characterized by elevated compartment pressures (>30 mmHg) causing muscle and nerve ischemia after lower leg trauma?", options: ["Crush syndrome", "Compartment syndrome", "Fat embolism syndrome", "Reflex sympathetic dystrophy"], correct: 1, exp: "Compartment syndrome occurs when increased tissue pressure in a closed fascial compartment compromises perfusion, requiring emergency decompressive fasciotomy." },
+            { source: "NUMS University", q: "What is the immediate treatment for acute compartment syndrome of the leg?", options: ["Leg elevation and ice packs", "Emergency surgical decompressive fasciotomy", "Cast application", "Thrombolytic therapy"], correct: 1, exp: "Emergency double-incision fascial decompression (fasciotomy) must be performed immediately to prevent irreversible tissue necrosis." },
+            { source: "NUMS University", q: "In a patient presenting with toxic nodular goiter (Plummer disease), what is the expected thyroid function profile?", options: ["High TSH, Low T3/T4", "Low TSH, High T3/T4", "Normal TSH, Normal T3/T4", "High TSH, High T3/T4"], correct: 1, exp: "Toxic multinodular goiter autonomous thyroid hormone secretion results in suppressed TSH and elevated serum T3/T4." },
+            { source: "NUMS University", q: "Which gastric procedure predisposes patients to Dumping Syndrome?", options: ["Nissen fundoplication", "Partial gastrectomy with Billroth I/II or Roux-en-Y reconstruction", "Simple closure of perforated ulcer", "Gastropexy"], correct: 1, exp: "Destruction or bypass of the pyloric sphincter in gastrectomy causes rapid hyperosmolar bolus transit into the small intestine, leading to dumping syndrome." },
+            { source: "NUMS University", q: "A 40-year-old female presents with recurrent peptic ulcers refractory to therapy and watery diarrhea. Serum gastrin is markedly elevated. What is the diagnosis?", options: ["VIPoma", "Zollinger-Ellison Syndrome (Gastrinoma)", "Insulinoma", "Glucagonoma"], correct: 1, exp: "Zollinger-Ellison syndrome (gastrin-secreting tumor) causes severe refractory peptic ulceration and hypergastrinemia." },
+            { source: "NUMS University", q: "What is the definitive surgical procedure for ulcerative colitis refractory to medical management?", options: ["Segmental colectomy", "Proctocolectomy with ileal pouch-anal anastomosis (IPAA)", "Loop ileostomy", "Hemicolectomy"], correct: 1, exp: "Total proctocolectomy with IPAA eliminates the disease-bearing mucosa completely while maintaining natural anal defecation." },
+            { source: "NUMS University", q: "Which type of skin cancer is characteristically pearly with telangiectasias and central rolled margins?", options: ["Squamous cell carcinoma", "Basal cell carcinoma", "Malignant melanoma", "Merkel cell carcinoma"], correct: 1, exp: "Basal cell carcinoma (BCC) is the most common skin cancer, classical for pearly nodular appearance with superficial telangiectasias." },
+            { source: "NUMS University", q: "What is the most significant prognostic factor for cutaneous malignant melanoma?", options: ["Tumor diameter", "Breslow thickness (depth of invasion)", "Patient age", "Anatomical location"], correct: 1, exp: "Breslow thickness measured in millimeters from the granular layer is the single most crucial predictor of melanoma survival and metastasis." },
+            { source: "NUMS University", q: "A patient presents with painless gross hematuria. Cystoscopy reveals a exophytic bladder tumor. What is the definitive initial diagnostic and therapeutic procedure?", options: ["Radical cystectomy", "Transurethral resection of bladder tumor (TURBT)", "Intravesical BCG", "Systemic chemotherapy"], correct: 1, exp: "TURBT provides both histological staging/grading and complete surgical resection for superficial bladder lesions." },
+            { source: "NUMS University", q: "Which clinical feature indicates a high risk for malignant transformation in a thyroid nodule?", options: ["Multi-nodularity", "History of neck radiation, rapid growth, and hard fixed consistency", "Hot nodule on radioiodine scan", "Isoechoic appearance"], correct: 1, exp: "Prior cervical irradiation, firm fixation to surrounding tissues, and rapid enlargement strongly suggest thyroid malignancy." },
+            { source: "NUMS University", q: "What is the procedure of choice for acute emphysematous or gangrenous cholecystitis in an unfit elderly patient?", options: ["Laparoscopic cholecystectomy", "Percutaneous transhepatic cholecystostomy tube drainage", "Open cholecystectomy", "ERCP"], correct: 1, exp: "Percutaneous cholecystostomy provides immediate gallbladder decompression in critically ill patients unfit for immediate surgery." },
+            { source: "NUMS University", q: "Which vessel is ligated during a right hemicolectomy for colon carcinoma?", options: ["Inferior mesenteric artery", "Ileocolic, right colic, and right branch of middle colic arteries", "Left colic artery", "Splenic artery"], correct: 1, exp: "Right hemicolectomy requires high ligation of the primary blood supply: ileocolic, right colic, and right branch of middle colic vessels." },
+            { source: "NUMS University", q: "What is the primary feature of Hirschsprung's disease in neonates?", options: ["Hypertrophy of pylorus", "Absence of ganglion cells in Meissner and Auerbach plexuses", "Failure of gut rotation", "Vascular occlusion of mesenteric artery"], correct: 1, exp: "Hirschsprung's disease is aganglionosis of the distal bowel, causing lack of peristalsis and functional neonatal distal bowel obstruction." },
+            { source: "NUMS University", q: "What diagnostic test confirms Hirschsprung's disease?", options: ["Abdominal X-ray", "Suction rectal biopsy", "Barium enema", "Anorectal manometry"], correct: 1, exp: "Full-thickness or suction rectal biopsy demonstrating absence of ganglion cells is the gold standard diagnostic test." },
+            { source: "NUMS University", q: "Which type of shock is characterized by high cardiac output and low systemic vascular resistance (SVR)?", options: ["Hypovolemic shock", "Septic / Vasogenic shock", "Cardiogenic shock", "Obstructive shock"], correct: 1, exp: "Hyperdynamic early septic shock manifests with high cardiac output and vasodilatory low SVR." },
+            { source: "NUMS University", q: "In abdominal trauma, what does the presence of air under the diaphragm on an upright chest X-ray indicate?", options: ["Splenic rupture", "Ruptured hollow viscus (perforation)", "Liver laceration", "Retroperitoneal hematoma"], correct: 1, exp: "Pneumoperitoneum (free air under the diaphragm) confirms perforation of a hollow gastrointestinal organ." },
+            { source: "NUMS University", q: "What is the definitive initial surgical operation for localized rectal cancer located 4 cm from the anal verge?", options: ["Anterior resection", "Abdominoperineal resection (APR) with permanent colostomy", "Local excision", "Total colectomy"], correct: 1, exp: "Tumors located within <5 cm of the anal verge usually require APR to achieve clear distal margins, requiring permanent colostomy." },
+            { source: "NUMS University", q: "Which nerve injury causes wrist drop?", options: ["Median nerve", "Ulnar nerve", "Radial nerve", "Axillary nerve"], correct: 2, exp: "Radial nerve injury (e.g. mid-shaft humeral fracture) paralyzes forearm wrist extensors, resulting in classic wrist drop." },
+            { source: "NUMS University", q: "What is the most common site of volvulus in the gastrointestinal tract?", options: ["Cecum", "Sigmoid colon", "Transverse colon", "Stomach"], correct: 1, exp: "Sigmoid volvulus accounts for 75% of intestinal volvulus cases, especially in elderly chronic constipated patients." },
+            { source: "NUMS University", q: "What is the classic radiographic appearance of sigmoid volvulus on plain abdominal film?", options: ["Double bubble sign", "Coffee bean sign / Bent inner tube sign", "Apple core sign", "Target sign"], correct: 1, exp: "Sigmoid volvulus produces a massive dilated colonic loop resembling a 'coffee bean' or 'bent inner tube' pointing toward the RUQ." },
+            { source: "NUMS University", q: "Which organ is most commonly injured in blunt abdominal trauma?", options: ["Liver", "Spleen", "Kidney", "Small intestine"], correct: 1, exp: "The spleen is the most frequently injured solid abdominal organ in blunt trauma, followed closely by the liver." },
+            { source: "NUMS University", q: "A trauma patient has hypotension, muffled heart sounds, and jugular venous distension. What is this clinical triad called?", options: ["Charcot's triad", "Beck's triad", "Cushing's triad", "Virchow's triad"], correct: 1, exp: "Beck's triad (hypotension, JVD, muffled heart sounds) indicates acute cardiac tamponade." },
+            { source: "NUMS University", q: "What is the initial diagnostic test of choice for cardiac tamponade in a trauma setting?", options: ["ECG", "FAST scan (Echocardiography)", "Chest X-ray", "CT Thorax"], correct: 1, exp: "FAST examination allows rapid bedside ultrasonographic identification of pericardial fluid accumulation." },
+            { source: "NUMS University", q: "Which electrolyte imbalance is a classic manifestation of Refeeding Syndrome in severely malnourished surgical patients?", options: ["Hyperkalemia", "Hypophosphatemia", "Hypercalcemia", "Hypernatremia"], correct: 1, exp: "Severe hypophosphatemia is the hallmark of refeeding syndrome caused by insulin-driven cellular uptake of phosphate upon nutritional restoration." },
+            { source: "NUMS University", q: "What is the most common cause of hyperparathyroidism?", options: ["Parathyroid hyperplasia", "Single parathyroid adenoma", "Parathyroid carcinoma", "MEN 1 syndrome"], correct: 1, exp: "A single benign parathyroid adenoma accounts for ~85% of primary hyperparathyroidism cases." },
+            { source: "NUMS University", q: "A 60-year-old female presents with mechanical bowel obstruction and air in the biliary tree (pneumobilia). What is the diagnosis?", options: ["Gallstone ileus", "Emphysematous cholecystitis", "Choledocholithiasis", "Ascending cholangitis"], correct: 0, exp: "Rigler's triad (pneumobilia, bowel obstruction, ectopic gallstone) is diagnostic for gallstone ileus caused by cholecystenteric fistula." },
+            { source: "NUMS University", q: "Which surgical approach is standard for repairing an unruptured abdominal aortic aneurysm (AAA) > 5.5 cm?", options: ["Elective Endovascular Aneurysm Repair (EVAR) or open repair", "Medical therapy with beta-blockers only", "Emergency laparotomy", "Observation until 7 cm"], correct: 0, exp: "Elective EVAR or open surgical repair is indicated for AAAs >= 5.5 cm in size to prevent catastrophic rupture." },
+            { source: "NUMS University", q: "What is the primary cause of acute arterial embolism originating in the heart?", options: ["Aortic stenosis", "Atrial fibrillation", "Infective endocarditis", "Ventricular septal defect"], correct: 1, exp: "Atrial fibrillation causes stasis in the left atrial appendage, predisposing to arterial thromboembolism." },
+            { source: "NUMS University", q: "Which breast lesion is characterized by a firm, painless, highly mobile ('breast mouse') lump in a 20-year-old female?", options: ["Fibrocystic change", "Fibroadenoma", "Phyllodes tumor", "Invasive ductal carcinoma"], correct: 1, exp: "Fibroadenoma is the most common benign breast neoplasm in young females, noted for high mobility ('breast mouse')." },
+            { source: "NUMS University", q: "What is the surgical treatment for an acute perianal abscess?", options: ["Oral antibiotics alone", "Prompt incision and drainage", "Fistulotomy", "Warm sitz baths only"], correct: 1, exp: "Acute perianal abscess requires prompt surgical incision and drainage; antibiotics alone are inadequate." },
+            { source: "NUMS University", q: "Which tumor marker is elevated in non-seminomatous germ cell testicular tumors and hepatocellular carcinoma?", options: ["CEA", "Alpha-fetoprotein (AFP)", "CA-125", "PSA"], correct: 1, exp: "AFP is elevated in embryonal testicular tumors, yolk sac tumors, and primary hepatocellular carcinoma." },
+            { source: "NUMS University", q: "What is the management of a hemodynamically stable patient with a grade II liver laceration?", options: ["Immediate emergency laparotomy", "Non-operative observation with serial monitoring", "Hepatic lobectomy", "Embolization alone"], correct: 1, exp: "Hemodynamically stable solid organ trauma (liver/spleen) is managed non-operatively with close monitoring in an ICU environment." },
+            { source: "NUMS University", q: "Which clinical sign is present when passive extension of the right hip produces abdominal pain in acute appendicitis?", options: ["Rovsing's sign", "Psoas sign", "Obturator sign", "Murphy's sign"], correct: 1, exp: "Psoas sign indicates retrocecal appendicitis irritating the iliopsoas muscle during right hip extension." },
+            { source: "NUMS University", q: "What is the most common complication following total thyroidectomy?", options: ["Thyroid storm", "Transient or permanent hypocalcemia", "Tracheal collapse", "Infection"], correct: 1, exp: "Transient hypocalcemia due to parathyroid stunning occurs in up to 20-30% of post-total thyroidectomy cases." },
+            { source: "NUMS University", q: "Which nerve injury leads to 'winged scapula' due to paralysis of the serratus anterior muscle?", options: ["Thoracodorsal nerve", "Long thoracic nerve", "Axillary nerve", "Musculocutaneous nerve"], correct: 1, exp: "The long thoracic nerve (C5-C7) innervates serratus anterior; injury during axillary dissection causes winged scapula." },
+            { source: "NUMS University", q: "What is the gold standard imaging test for evaluating ureteral stones?", options: ["KUB X-ray", "Non-contrast CT scan of abdomen and pelvis", "Ultrasound KUB", "Intravenous pyelogram (IVP)"], correct: 1, exp: "Non-contrast helical CT abdomen/pelvis is the diagnostic gold standard for urolithiasis (>98% sensitivity)." }
         ];
 
-        // App State
+        // --- APP STATE ---
         let currentQuestions = [...surgeryQuestionsRaw];
         let currentIndex = 0;
-        let score = 0;
-        let answeredCount = 0;
+        let userAnswers = new Array(surgeryQuestionsRaw.length).fill(null);
+        const STORAGE_KEY = "NRE_NUMS_SURGERY_QUIZ_SAVE_STATE";
 
-        // Elements
-        const qBadge = document.getElementById('question-number-badge');
-        const srcBadge = document.getElementById('source-badge');
-        const qText = document.getElementById('question-text');
-        const optContainer = document.getElementById('options-container');
-        const expBox = document.getElementById('explanation-box');
-        const expText = document.getElementById('explanation-text');
+        // --- DOM ELEMENTS ---
+        const questionNumberBadge = document.getElementById('question-number-badge');
+        const sourceBadge = document.getElementById('source-badge');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const explanationBox = document.getElementById('explanation-box');
+        const explanationText = document.getElementById('explanation-text');
         const prevBtn = document.getElementById('prev-btn');
         const nextBtn = document.getElementById('next-btn');
+        const questionGrid = document.getElementById('question-grid');
         const scoreCounter = document.getElementById('score-counter');
         const progressCounter = document.getElementById('progress-counter');
         const sourceFilter = document.getElementById('source-filter');
-        const gridContainer = document.getElementById('question-grid');
+        const saveStatusText = document.getElementById('save-status-text');
+        const resetQuizBtn = document.getElementById('reset-quiz-btn');
 
-        function renderGrid() {
-            gridContainer.innerHTML = '';
-            currentQuestions.forEach((q, idx) => {
-                const btn = document.createElement('button');
-                btn.innerText = idx + 1;
-                btn.className = `p-1.5 text-xs font-semibold rounded border ${
-                    idx === currentIndex ? 'ring-2 ring-indigo-600 font-bold' : ''
-                } ${
-                    q.userAnswer === undefined 
-                        ? 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100' 
-                        : q.userAnswer === q.correct 
-                            ? 'bg-green-500 border-green-600 text-white' 
-                            : 'bg-red-500 border-red-600 text-white'
-                }`;
-                btn.onclick = () => {
-                    currentIndex = idx;
-                    loadQuestion();
+        // --- LOCAL STORAGE AUTO-SAVE LOGIC ---
+        function saveProgressToLocalStorage() {
+            try {
+                const state = {
+                    userAnswers: userAnswers,
+                    currentIndex: currentIndex,
+                    selectedFilter: sourceFilter.value,
+                    lastSaved: new Date().toISOString()
                 };
-                gridContainer.appendChild(btn);
-            });
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                flashSaveStatus("Auto-Saved");
+            } catch (e) {
+                console.error("Auto-save failed", e);
+            }
         }
 
-        function loadQuestion() {
+        function loadProgressFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    const state = JSON.parse(savedData);
+                    if (Array.isArray(state.userAnswers) && state.userAnswers.length === surgeryQuestionsRaw.length) {
+                        userAnswers = state.userAnswers;
+                        if (typeof state.currentIndex === 'number') currentIndex = state.currentIndex;
+                        if (state.selectedFilter) sourceFilter.value = state.selectedFilter;
+                        flashSaveStatus("Progress Restored");
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load auto-save state", e);
+            }
+            return false;
+        }
+
+        function flashSaveStatus(msg) {
+            saveStatusText.textContent = msg;
+            setTimeout(() => {
+                saveStatusText.textContent = "Auto-Save Enabled";
+            }, 2000);
+        }
+
+        function clearSavedProgress() {
+            if (confirm("Are you sure you want to reset all your progress? This cannot be undone.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                userAnswers = new Array(surgeryQuestionsRaw.length).fill(null);
+                currentIndex = 0;
+                sourceFilter.value = "ALL";
+                filterQuestions();
+                flashSaveStatus("Progress Reset");
+            }
+        }
+
+        // --- FILTER & NAVIGATION ---
+        function filterQuestions() {
+            const filterVal = sourceFilter.value;
+            if (filterVal === "ALL") {
+                currentQuestions = surgeryQuestionsRaw.map((q, idx) => ({ ...q, originalIndex: idx }));
+            } else {
+                currentQuestions = surgeryQuestionsRaw
+                    .map((q, idx) => ({ ...q, originalIndex: idx }))
+                    .filter(q => q.source === filterVal);
+            }
+            currentIndex = 0;
+            renderQuiz();
+        }
+
+        // --- RENDER FUNCTION ---
+        function renderQuiz() {
             if (currentQuestions.length === 0) return;
-            const q = currentQuestions[currentIndex];
 
-            qBadge.innerText = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
-            srcBadge.innerText = q.source;
-            qText.innerText = q.q;
+            const qData = currentQuestions[currentIndex];
+            const originalIndex = qData.originalIndex;
+            const savedAnswer = userAnswers[originalIndex];
 
-            optContainer.innerHTML = '';
+            // Update Badges & Headers
+            questionNumberBadge.textContent = `Question ${currentIndex + 1} of ${currentQuestions.length}`;
+            sourceBadge.textContent = qData.source;
+            questionText.textContent = qData.q;
 
-            q.options.forEach((optStr, optIdx) => {
+            // Render Options
+            optionsContainer.innerHTML = '';
+            qData.options.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = `option-btn w-full text-left p-3.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-sm font-medium flex items-start space-x-3`;
+                btn.className = "w-full text-left p-3.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 option-btn font-medium text-sm flex items-start space-x-3";
                 
-                const letter = String.fromCharCode(65 + optIdx);
-                btn.innerHTML = `<span class="font-bold text-indigo-600 flex-shrink-0">${letter}.</span><span class="flex-grow">${optStr}</span>`;
+                const letter = String.fromCharCode(65 + idx);
+                btn.innerHTML = `<span class="font-bold text-slate-500">${letter}.</span><span class="flex-grow">${opt}</span>`;
 
-                if (q.userAnswer !== undefined) {
+                if (savedAnswer !== null) {
                     btn.disabled = true;
-                    if (optIdx === q.correct) {
-                        btn.classList.add(q.userAnswer === q.correct ? 'correct-selected' : 'correct-unselected');
-                    } else if (optIdx === q.userAnswer) {
+                    if (idx === qData.correct) {
+                        btn.classList.add(savedAnswer === qData.correct ? 'correct-selected' : 'correct-unselected');
+                    } else if (idx === savedAnswer) {
                         btn.classList.add('wrong-selected');
                     }
                 } else {
-                    btn.onclick = () => selectOption(optIdx);
+                    btn.onclick = () => handleOptionSelect(originalIndex, idx);
                 }
 
-                optContainer.appendChild(btn);
+                optionsContainer.appendChild(btn);
             });
 
-            if (q.userAnswer !== undefined) {
-                expText.innerText = q.exp;
-                expBox.classList.remove('hidden');
+            // Handle Explanation Box
+            if (savedAnswer !== null) {
+                explanationBox.classList.remove('hidden');
+                explanationText.textContent = qData.exp;
             } else {
-                expBox.classList.add('hidden');
+                explanationBox.classList.add('hidden');
             }
 
+            // Controls
             prevBtn.disabled = currentIndex === 0;
-            nextBtn.innerText = currentIndex === currentQuestions.length - 1 ? 'Finish Section' : 'Next Question';
+            nextBtn.disabled = currentIndex === currentQuestions.length - 1;
 
-            renderGrid();
+            updateGridNavigator();
+            updateCounters();
         }
 
-        function selectOption(index) {
-            const q = currentQuestions[currentIndex];
-            if (q.userAnswer !== undefined) return;
-
-            q.userAnswer = index;
-            if (index === q.correct) {
-                score++;
-            }
-            answeredCount++;
-
-            scoreCounter.innerText = `${score} / ${answeredCount}`;
-            progressCounter.innerText = `${answeredCount} / ${surgeryQuestionsRaw.length}`;
-
-            loadQuestion();
+        function handleOptionSelect(origIdx, selectedOptIdx) {
+            userAnswers[origIdx] = selectedOptIdx;
+            saveProgressToLocalStorage();
+            renderQuiz();
         }
 
+        function updateGridNavigator() {
+            questionGrid.innerHTML = '';
+            currentQuestions.forEach((q, idx) => {
+                const origIdx = q.originalIndex;
+                const ans = userAnswers[origIdx];
+                const btn = document.createElement('button');
+                btn.className = "p-2 text-xs font-bold rounded border transition text-center flex items-center justify-center";
+
+                if (idx === currentIndex) {
+                    btn.classList.add('ring-2', 'ring-indigo-600', 'ring-offset-1');
+                }
+
+                if (ans === null) {
+                    btn.classList.add('bg-slate-100', 'text-slate-700', 'border-slate-300', 'hover:bg-slate-200');
+                } else if (ans === q.correct) {
+                    btn.classList.add('bg-emerald-500', 'text-white', 'border-emerald-600');
+                } else {
+                    btn.classList.add('bg-rose-500', 'text-white', 'border-rose-600');
+                }
+
+                btn.textContent = idx + 1;
+                btn.onclick = () => {
+                    currentIndex = idx;
+                    renderQuiz();
+                    saveProgressToLocalStorage();
+                };
+                questionGrid.appendChild(btn);
+            });
+        }
+
+        function updateCounters() {
+            let totalAnswered = 0;
+            let correctCount = 0;
+
+            userAnswers.forEach((ans, idx) => {
+                if (ans !== null) {
+                    totalAnswered++;
+                    if (ans === surgeryQuestionsRaw[idx].correct) {
+                        correctCount++;
+                    }
+                }
+            });
+
+            scoreCounter.textContent = `${correctCount} / ${totalAnswered}`;
+            progressCounter.textContent = `${totalAnswered} / ${surgeryQuestionsRaw.length}`;
+        }
+
+        // --- EVENT LISTENERS ---
         prevBtn.onclick = () => {
             if (currentIndex > 0) {
                 currentIndex--;
-                loadQuestion();
+                renderQuiz();
+                saveProgressToLocalStorage();
             }
         };
 
         nextBtn.onclick = () => {
             if (currentIndex < currentQuestions.length - 1) {
                 currentIndex++;
-                loadQuestion();
+                renderQuiz();
+                saveProgressToLocalStorage();
             }
         };
 
-        sourceFilter.onchange = (e) => {
-            const filter = e.target.value;
-            if (filter === 'ALL') {
-                currentQuestions = [...surgeryQuestionsRaw];
-            } else {
-                currentQuestions = surgeryQuestionsRaw.filter(q => q.source === filter);
-            }
-            currentIndex = 0;
-            loadQuestion();
+        sourceFilter.onchange = () => {
+            filterQuestions();
+            saveProgressToLocalStorage();
         };
 
-        // Init
-        loadQuestion();
+        resetQuizBtn.onclick = clearSavedProgress;
+
+        // --- INITIALIZATION ---
+        window.onload = () => {
+            const hasRestored = loadProgressFromLocalStorage();
+            filterQuestions();
+            if (!hasRestored) {
+                saveProgressToLocalStorage();
+            }
+        };
     </script>
 </body>
 </html>
